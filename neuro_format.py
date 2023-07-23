@@ -1,13 +1,9 @@
-import os
-
-import dotenv
 import openai
 
 from parse_news import parse_news
+from settings import API_KEY
 
-dotenv.load_dotenv('.env')
-
-openai.api_key = os.getenv('API_KEY')
+openai.api_key = API_KEY
 
 
 def neuro_format():
@@ -18,36 +14,39 @@ def neuro_format():
     title = openai.ChatCompletion.create(
         model='gpt-3.5-turbo',
         messages=[
-            {'role': 'system', 'content': 'Скажи другими словами'},
+            {
+                'role': 'system',
+                'content': 'Создай короткий заголовок',
+            },
             {'role': 'user', 'content': news_data['title']},
         ],
     )
-
-    """description = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "Скажи другими словами"},
-            {"role": "user", "content": news_data["description"]},
-        ],
-    )"""
 
     text = openai.ChatCompletion.create(
         model='gpt-3.5-turbo',
         messages=[
             {
                 'role': 'system',
-                'content': 'Перескажи в два предложения',  # 'Резюмируй текст'
+                'content': 'Ты - новостной обозреватель. Сократи текст до 2 предложений, сохранив смысл ',
             },
-            {'role': 'user', 'content': news_data['news']},
+            {'role': 'user', 'content': news_data['text']},
         ],
     )
 
+    news_section = news_data['section'].upper()
     news_title = title.choices[0].message.content
     news_title.encode('utf-8')
-    # news_description = description.choices[0].message.content
     news_text = text.choices[0].message.content
     news_text.encode('utf-8')
-    final_post = news_title + '\n\n' + news_text
+    news_picture = news_data['picture']
+    news_link = news_data['link']
 
-    print(final_post)
-    return final_post
+    post = {
+        'section': news_section,
+        'title': news_title,
+        'text': news_text,
+        'picture': news_picture,
+        'link': news_link,
+    }
+
+    return post

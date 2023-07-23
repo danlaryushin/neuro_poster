@@ -1,78 +1,67 @@
 import requests
 from bs4 import BeautifulSoup
-import os
-import dotenv
 
-dotenv.load_dotenv('.env')
+from settings import PARSE_URL, SECTIONS
 
-MAIN_URL = os.getenv('MAIN_URL')
 published_news = []
 
 
 def parse_news():
-    response = requests.get(MAIN_URL)
+    response = requests.get(PARSE_URL)
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, features='lxml')
 
-    breaking_news = soup.find('div', attrs={'data-vr-zone': 'Главная новость'})
-    breaking_news_link = (breaking_news.find('a'))['data-vr-contentbox-url']
+    latest_news = soup.find_all('div', {'class': 'js-news-feed-item js-yandex-counter'})
 
-    latest_news = soup.find('div', {'data-vr-zone': 'Топ новости'})
-    latest_news_link = (latest_news.find('a'))['data-vr-contentbox-url']
+    for one in range(5):
+        news_link = latest_news[one].find('a', {'class': {'item__link'}})['href']
+        item_bottom = latest_news[one].find('div', {'class': 'item__bottom'})
+        news_data = item_bottom.find('a')
+        try:
+            news_photo = latest_news[one].find('img')['src']
+        except:
+            news_photo = None
+        news_section = news_data.text.replace(',', '').replace('\xa0', '')
 
-    if breaking_news_link not in published_news:
-        response = requests.get(breaking_news_link)
-        response.encoding = 'utf-8'
-        soup = BeautifulSoup(response.text, features='lxml')
+        try:
+            if (
+                news_link not in published_news
+                and news_section in SECTIONS
+                and news_photo is not None
+            ):
+                response = requests.get(news_link)
+                response.encoding = 'utf-8'
+                soup = BeautifulSoup(response.text, features='lxml')
 
-        title = soup.find('h1').text
-        # description = soup.find('div', attrs={'class': 'article__text__overview'}).text
-        content_block = soup.find(
-            'div', attrs={'class': 'l-col-center-590 article__content'}
-        )
-        text_block = content_block.find_all(['p', 'li'])
-        text_block.encoding = 'utf-8'
-        news = ''
+                news_title = soup.find('h1').text
+                content_block = soup.find(
+                    'div', attrs={'class': 'l-col-center-590 article__content'}
+                )
+                text_block = content_block.find_all(['p', 'li'])
+                text_block.encoding = 'utf-8'
+                news_text = ''
 
-        for tag in text_block:
-            if len(news) < 4097:
-                news += tag.text
+                for tag in text_block:
+                    if len(news_text) < 4097:
+                        news_text += tag.news_text
 
-        post = {
-            'title': title,
-            # 'description': description,
-            'news': news,
-        }
-        published_news.append(breaking_news_link)
+                post = {
+                    'section': news_section,
+                    'title': news_title,
+                    'text': news_text,
+                    'picture': news_photo,
+                    'link': news_link,
+                }
+                published_news.append(news_link)
+                return post
 
-        return post
-
-    elif latest_news_link not in published_news:
-        response = requests.get(latest_news_link)
-        response.encoding = 'utf-8'
-        soup = BeautifulSoup(response.text, features='lxml')
-
-        title = soup.find('h1').text
-        # description = soup.find('div', attrs={'class': 'article__text__overview'}).text
-        content_block = soup.find(
-            'div', attrs={'class': 'l-col-center-590 article__content'}
-        )
-        text_block = content_block.find_all(['p', 'li'])
-        text_block.encoding = 'utf-8'
-        news = ''
-
-        for tag in text_block:
-            if len(news) < 4097:
-                news += tag.text
-
-        post = {
-            'title': title,
-            # 'description': description,
-            'news': news,
-        }
-        published_news.append(latest_news_link)
-
-        return post
-
-    else:
-        print('Нока нет новостей')
+            elif news_section not in SECTIONS:
+                print(f'Неинтересно - {news_section}')
+            elif news_photo is None:
+                print('Есть новость без фото')
+            elif news_link in published_news:
+                print('Уже опубликована')
+            else:
+                print('Пока нет новостей')
+        except:
+            return None
