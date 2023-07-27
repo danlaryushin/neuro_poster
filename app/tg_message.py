@@ -1,12 +1,22 @@
-from settings import CHAT_ID, TG_TOKEN
+import logging
 from telegram import Bot
 
 from app.neuro_format import neuro_format
+from settings import CHAT_ID, TG_TOKEN, LOG_FORMAT, LOG_FILE
+
+logging.basicConfig(
+    format=LOG_FORMAT,
+    level=logging.INFO,
+    filename=LOG_FILE,
+    filemode='w',
+)
 
 bot = Bot(token=TG_TOKEN)
 
 
 def create_message():
+    """Функция формирует пост из преобразованных данных"""
+
     post_data = neuro_format()
     if post_data is None:
         pass
@@ -22,12 +32,19 @@ def create_message():
 
 
 def send_message():
+    """Функция реализует отправку сообщения в telegram"""
+
     final_post, picture = create_message()
-    for id in CHAT_ID:
-        try:
-            bot.send_photo(id, picture, final_post, parse_mode='html')
-            print(id)
-        except:
-            print('Не удалось отправить сообщение')
-            continue
+    if final_post is None:
+        pass
+    else:
+        for id in CHAT_ID:
+            try:
+                bot.send_photo(id, picture, final_post, parse_mode='html')
+            except Exception as error:
+                logging.error(
+                    f'Ошибка при отправке сообщения: {error}',
+                    exc_info=True,
+                )
+                continue
     print(final_post)

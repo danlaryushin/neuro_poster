@@ -1,16 +1,39 @@
+import logging
 import requests
 from bs4 import BeautifulSoup
-from settings import PARSE_URL, SECTIONS
+
+from settings import PARSE_URL, SECTIONS, LOG_FORMAT, LOG_FILE
+
+logging.basicConfig(
+    format=LOG_FORMAT,
+    level=logging.INFO,
+    filename=LOG_FILE,
+    filemode='w',
+)
 
 published_news = []
 
 
 def parse_news():
-    response = requests.get(PARSE_URL)
-    response.encoding = 'utf-8'
-    soup = BeautifulSoup(response.text, features='lxml')
+    """
+    Функция осуществляет парсинг с главной страницы сайта.
+    В цикле обрабатывается 5 последних новостей, и если новость еще не опубликована -
+    происходит переход на url-адрес новости с последующим парсингом текста публикации.
 
-    latest_news = soup.find_all('div', {'class': 'js-news-feed-item js-yandex-counter'})
+    Функция возвращает словарь с необходимыми для дальнейшей обработки данными:
+    Рубрика, Заголовок, Текст, Фото, Ссылка
+    """
+
+    try:
+        response = requests.get(PARSE_URL)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, features='lxml')
+        latest_news = soup.find_all(
+            'div', {'class': 'js-news-feed-item js-yandex-counter'}
+        )
+    except Exception as error:
+        logging.info(f'Проблема с доступом к URL: {error}', exc_info=True)
+        return None
 
     for one in range(5):
         news_link = latest_news[one].find('a', {'class': {'item__link'}})['href']
@@ -63,5 +86,6 @@ def parse_news():
                 print('Уже опубликована')
             else:
                 print('Пока нет новостей')
-        except:
+        except Exception as error:
+            logging.error(f'Проблемы с парсингом: {error}', exc_info=True)
             return None
