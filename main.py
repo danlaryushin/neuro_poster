@@ -1,9 +1,8 @@
 from datetime import datetime as dt
 from time import sleep
 
-from tg_message import send_message
-
-RETRY_TIME = 300
+from app.tg_message import send_message
+from settings import RETRY_TIME
 
 
 def main():

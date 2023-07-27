@@ -1,7 +1,7 @@
 import openai
-
-from parse_news import parse_news
 from settings import API_KEY
+
+from app.parse_news import parse_news
 
 openai.api_key = API_KEY
 
@@ -16,7 +16,7 @@ def neuro_format():
         messages=[
             {
                 'role': 'system',
-                'content': 'Создай короткий заголовок',
+                'content': 'Создай короткий заголовок на русском языке из такста:',
             },
             {'role': 'user', 'content': news_data['title']},
         ],
@@ -27,7 +27,7 @@ def neuro_format():
         messages=[
             {
                 'role': 'system',
-                'content': 'Ты - новостной обозреватель. Сократи текст до 2 предложений, сохранив смысл ',
+                'content': 'Ты - новостной обозреватель. Сократи текст до 2 предложений, сохранив смысл. Ответь на русском языке ',
             },
             {'role': 'user', 'content': news_data['text']},
         ],

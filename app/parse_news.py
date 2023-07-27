@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-
 from settings import PARSE_URL, SECTIONS
 
 published_news = []
@@ -43,7 +42,7 @@ def parse_news():
 
                 for tag in text_block:
                     if len(news_text) < 4097:
-                        news_text += tag.news_text
+                        news_text += tag.text
 
                 post = {
                     'section': news_section,
@@ -53,6 +52,7 @@ def parse_news():
                     'link': news_link,
                 }
                 published_news.append(news_link)
+
                 return post
 
             elif news_section not in SECTIONS:
