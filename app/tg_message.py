@@ -8,7 +8,8 @@ logging.basicConfig(
     format=LOG_FORMAT,
     level=logging.INFO,
     filename=LOG_FILE,
-    filemode='w',
+    filemode='a',
+    encoding='utf-8',
 )
 
 bot = Bot(token=TG_TOKEN)
