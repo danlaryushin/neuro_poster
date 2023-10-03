@@ -34,7 +34,7 @@ def neuro_format():
             messages=[
                 {
                     'role': 'system',
-                    'content': 'Создай короткий заголовок на русском языке из такста:',
+                    'content': 'Создай короткий заголовок на русском языке из текста:',
                 },
                 {'role': 'user', 'content': news_data['title']},
             ],
