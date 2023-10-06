@@ -1,4 +1,3 @@
-## **Стек технологий**
 ![python](https://img.shields.io/badge/python-222324?style=for-the-badge&logo=python&logoColor=yellow)
 ![openai](https://img.shields.io/badge/openai-222324?style=for-the-badge&logo=openai&logoColor=)
 ![telegram](https://img.shields.io/badge/telegram%20bot-222324?style=for-the-badge&logo=telegram&logoColor=)
