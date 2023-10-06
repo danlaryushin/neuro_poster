@@ -4,7 +4,7 @@
 ![telegram](https://img.shields.io/badge/telegram%20bot-222324?style=for-the-badge&logo=telegram&logoColor=)
 ![beautifulsoup4](https://img.shields.io/badge/beautifulsoup4-222324?style=for-the-badge&logo=jekyll&logoColor=)
 
-# Парсер-копирайтер для новостного telegram канала.
+# NeuroPoster
 
 Сервис для парсинга новостей, с последующей обработкой их с помощью ChatGPT и публикацией в telegram-канале.
 
